@@ -60,7 +60,7 @@
 
     function setCookieMinute(pLabel, pVal, pMinutes) {
         var tExpDate = new Date();
-    
+
          tExpDate.setTime(tExpDate.getTime() + (pMinutes * 60 * 1000));
         document.cookie = pLabel + "=" + escape(pVal) + ";path=/"+
         ((pMinutes == null) ? "" : ";expires=" + tExpDate.toGMTString());
@@ -108,7 +108,7 @@
                 if (total == 0) {
                   a.innerHTML = "<a id='cartCountA'>您的购物车是空的</a>"
                 } else {
-                  a.innerHTML =  `<a id='cartCountA' href='/cart/'>${total}件商品,¥${money}</a>`
+                  a.innerHTML =  `<a id='cartCountA' href='/cart/'>购物车: ${total}件商品,¥${money}</a>`
                 }
 
             }

@@ -6,6 +6,8 @@ from cart.cart import Cart
 from django.http import JsonResponse
 import json
 import urllib.request
+# from ..shop.models import Product
+from decimal import Decimal
 
 def order_create(request):
     cart = Cart(request)
@@ -34,12 +36,17 @@ def order_create(request):
                   {'cart': cart, 'form': form})
 
 def order_notify(request):
-    order = request.POST.get('order')  
-    print('order',order)
+    order = request.POST.get('order')
     order = json.loads(order)
     orderText = "手机号: {0}\n微信号: {1}\n地址: {2}\n时间: {3}".format(order['0'],order['1'],order['2'],order['3'])
-    print(orderText)
-    dd(orderText)
+    cart = Cart(request)
+    cartText = ""
+
+    for product in cart:
+        cartText += "{}: {} * {} : {}\n".format(product['product'],product['price'],product['quantity'],Decimal(product['price']) * product['quantity'])
+
+    cartText += '\n总价: {}\n\n'.format(cart.get_total_price())
+    dd(cartText + orderText)
     return  JsonResponse({'success':True, 'data':{
                 'status_code' : 200,
                 'order':order
@@ -60,11 +67,10 @@ def dd(orderText):
     }
 
     sendData = json.dumps(data)
-    sendData = sendData.encode("utf-8") 
+    sendData = sendData.encode("utf-8")
 
     request = urllib.request.Request(url=url, data=sendData, headers=header)
 
 
     opener = urllib.request.urlopen(request)
     print(opener.read())
-
