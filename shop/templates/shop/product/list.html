@@ -1,0 +1,82 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+  {% if category %}{{ category.name }}{% else %}全部{% endif %}
+{% endblock %}
+
+{% block content %}
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+    <ul class="mobile-app-filter-menu" data-mobile-app-filter-menu >
+      <li {% if not category %}class="is-active"{% endif %}>
+        <a href="{% url "shop:product_list" %}">全部</a>
+      </li>
+      {% for c in categories %}
+        <li {% if category.slug == c.slug %}class="is-active"
+        {% endif %}>
+          <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  <div class="row small-up-2 large-up-4">
+
+
+    {% for product in products %}
+      <div class="column" align="center">
+        <br>
+        <a href="#">
+          <img class="thumbnail" src="{% if product.image %}{{ product.image.url }}{% else %}{% static "img/no_image.png" %}{% endif %}">
+        </a>
+        <span style="font-size: 15px;color: #43484D;font-weight: 600;">{{ product.name }}</span>
+        <br>
+        <div class="quantity">
+          <span style="font-size: 15px;color: #43484D;font-weight: 600;">¥{{ product.price }}</span>
+          <button class="plus-btn" type="button" name="{{ product.id }}">
+            <img src="{% static "img/plus.svg" %}" alt="" />
+          </button>
+          <input id='inputCount{{ product.id }}' type="text" name="myInput" value="">
+          <button class="minus-btn" type="button" name="{{ product.id }}">
+            <img src="{% static "img/minus.svg" %}" alt="" />
+          </button>
+        </div>
+
+
+      </div>
+    {% endfor %}
+    <script>
+
+      function getCookie(c_name) {
+          if (document.cookie.length > 0) {
+              c_start = document.cookie.indexOf(c_name + "=")
+              if (c_start != -1) {
+                  c_start = c_start + c_name.length + 1
+                  c_end = document.cookie.indexOf(";", c_start)
+                  if (c_end == -1) c_end = document.cookie.length
+                  return unescape(document.cookie.substring(c_start, c_end))
+              }
+          }
+          return ""
+        }
+
+        let cartJson = getCookie("cart")
+        if (cartJson && cartJson != "") {
+          let cartCookie = JSON.parse(cartJson)
+          for (var product in cartCookie) {
+            let inputID = 'inputCount' + product
+            input = document.getElementById(inputID)
+            if (input) {
+              input.value = cartCookie[product]['quantity']
+            }
+          }
+        }
+        var allInput = document.getElementsByName("myInput");
+        for (var input in allInput) {
+          if (allInput[input].value == "") {
+            allInput[input].value = "0"
+          }
+        }
+    </script>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+  购物车
+{% endblock %}
+
+{% block content %}
+    <script>
+       function posteCount(event) {
+          productID = event.id
+          $.ajax({
+              type: 'POST',
+              url: '/cart/add/',
+              data: {
+                'product_id': productID,
+                'count': 0
+              },
+              dataType: 'json',
+              success: function (data) {
+                  let cart = data['data']['cart']
+                  console.log('cart',cart)
+                if (cart) {
+
+                    let cartJson = JSON.stringify(cart);
+                    setCookieMinute("cart", cartJson, 24);
+                    var a = document.getElementById('cartCountA');
+                    var total = 0
+                    var money = 0
+                    for(let product in cart) {
+                      total += cart[product]['quantity']
+                      money += cart[product]['quantity'] * cart[product]['price']
+                    }
+                    if (total == 0) {
+                      a.innerHTML = "<a id='cartCountA'>您的购物车是空的</a>"
+                    } else {
+                      a.innerHTML =  `<a id='cartCountA' href='/cart/'>${total}件商品,¥${money}</a>`
+                    }
+                    location.reload() 
+                }
+              }
+            });
+        }
+    </script>
+    <div class="checkout-summary">
+      {% for item in cart %}
+        {% with product=item.product %}
+          {% if item.quantity > 0 %}
+          <div class="checkout-summary-item">
+            <img style="width:144px; height:100px;" src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}">
+            <div class="item-name">
+              <p><span class="title">{{ product.name }}</span><p>
+              <p><span class="title">¥{{ item.price }} </span></p>
+              <p><span class="title">× {{ item.quantity }} </span></p>
+
+            </div>
+            <div class="item-price">
+                <br>
+                <p class="title">¥{{ item.total_price }}</p>
+                <button style="color:grey" onclick="posteCount(this)" id= {{ product.id }}>删除</button>
+            </div>
+          </div>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+      <br>
+      <br>
+      {% if cart|length > 0 %}
+        <button class="button expanded" onclick="window.location.href='/orders/create/'">生成订单</button>
+      {% endif %}
+    </div>
+
+
+
+
+  <!-- <h1>Your shopping cart</h1>
+  <table class="cart">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Remove</th>
+        <th>Unit price</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart %}
+        {% with product=item.product %}
+          <tr>
+            <td>
+              <a href="{{ product.get_absolute_url }}">
+                <img src="{% if product.image %}{{ product.image.url }}
+                {% else %}{% static "img/no_image.png" %}{% endif %}">
+              </a>
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td><a href="{% url "cart:cart_remove" product.id %}">Remove</a></td>
+            <td class="num">${{ item.price }}</td>
+            <td class="num">${{ item.total_price }}</td>
+          </tr>
+        {% endwith %}
+      {% endfor %}
+      {% if cart.coupon %}
+          <tr class="subtotal">
+            <td>Subtotal</td>
+            <td colspan="4"></td>
+            <td class="num">${{ cart.get_total_price|floatformat:"2" }}</td>
+          </tr>
+          <tr>
+            <td>
+              "{{ cart.coupon.code }}" coupon
+              ({{ cart.coupon.discount }}% off)
+            </td>
+            <td colspan="4"></td>
+            <td class="num neg">
+              - ${{ cart.get_discount|floatformat:"2" }}
+            </td>
+          </tr>
+        {% endif %}
+        <tr class="total">
+          <td>Total</td>
+          <td colspan="4"></td>
+          <td class="num">
+            ${{ cart.get_total_price_after_discount|floatformat:"2" }}
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <p>Apply a coupon:</p>
+  <form action="{% url "coupons:apply" %}" method="post">
+      {{ coupon_apply_form }}
+      <input type="submit" value="Apply">
+      {% csrf_token %}
+  </form>
+  <p class="text-right">
+    <a href="{% url "shop:product_list" %}" class="button
+    light">Continue shopping</a>
+    <a href="{% url "orders:order_create" %}" class="button">Checkout</a>
+  </p> -->
+{% endblock %}

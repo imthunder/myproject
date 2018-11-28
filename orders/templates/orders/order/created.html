@@ -1,0 +1,23 @@
+{% extends "shop/base.html" %}
+
+{% block title %}
+  Thank you
+{% endblock %}
+
+{% block content %}
+  <div align="center">
+    <br>
+    <h1>感谢您的支持</h1>
+    <p>您的订单已经提交，店主将尽快联系您</p>
+  </div>
+  <script>
+      function setCookieMinute(pLabel, pVal, pMinutes) {
+        var tExpDate = new Date();
+
+          tExpDate.setTime(tExpDate.getTime() + (pMinutes * 60 * 1000));
+        document.cookie = pLabel + "=" + escape(pVal) + ";path=/"+
+        ((pMinutes == null) ? "" : ";expires=" + tExpDate.toGMTString());
+      }
+      setCookieMinute("cart", "", 24)
+  </script>
+{% endblock %}

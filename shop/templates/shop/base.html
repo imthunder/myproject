@@ -1,0 +1,154 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>叹色拉</title>
+<link href="{% static "css/base.css" %}" rel="stylesheet">
+<link href="{% static "css/foundation.css" %}" rel="stylesheet">
+<!-- <link rel="stylesheet" href="https://dhbhdrzi4tiry.cloudfront.net/cdn/sites/foundation.min.css"> -->
+</head>
+<body>
+
+<div class="top-bar">
+<div class="top-bar-left">
+<ul class="menu">
+<li><a href="/" style="font-size:20px">叹色拉</a></li>
+</ul>
+</div>
+<div class="top-bar-right">
+<ul class="menu">
+  <li>{% with total_items=cart|length %}
+        {% if cart|length > 0 %}
+            <a id='cartCountA' href="{% url "cart:cart_detail" %}">
+                {{ total_items }} 件商品,
+                ¥{{ cart.get_total_price }}
+            </a>
+        {% else %}
+            <a id='cartCountA'>您的购物车是空的</a>
+        {% endif %}
+      {% endwith %}
+   </li>
+<!-- <li><a href="#">购物车</a></li> -->
+</ul>
+</div>
+</div>
+
+
+<div id="content">
+  {% block content %}
+  {% endblock %}
+</div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="{% static "js/foundation.js" %}"></script>
+<script>
+      $(document).foundation();
+
+    function getCookie(c_name) {
+    if (document.cookie.length > 0) {
+        c_start = document.cookie.indexOf(c_name + "=")
+        if (c_start != -1) {
+            c_start = c_start + c_name.length + 1
+            c_end = document.cookie.indexOf(";", c_start)
+            if (c_end == -1) c_end = document.cookie.length
+            return unescape(document.cookie.substring(c_start, c_end))
+        }
+    }
+    return ""
+    }
+
+    function setCookieMinute(pLabel, pVal, pMinutes) {
+        var tExpDate = new Date();
+    
+         tExpDate.setTime(tExpDate.getTime() + (pMinutes * 60 * 1000));
+        document.cookie = pLabel + "=" + escape(pVal) + ";path=/"+
+        ((pMinutes == null) ? "" : ";expires=" + tExpDate.toGMTString());
+    }
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+    	var csrftoken = getCookie('csrftoken');
+    	if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+</script>
+<script>
+
+    function postCount(productID,value) {
+      $.ajax({
+          type: 'POST',
+          url: '/cart/add/',
+          data: {
+            'product_id': productID,
+            'count': value
+          },
+          dataType: 'json',
+          success: function (data) {
+              let cart = data['data']['cart']
+              console.log('cart',cart)
+            if (cart) {
+
+                let cartJson = JSON.stringify(cart);
+                setCookieMinute("cart", cartJson, 24);
+                var a = document.getElementById('cartCountA');
+                var total = 0
+                var money = 0
+                for(let product in cart) {
+                  total += cart[product]['quantity']
+                  money += cart[product]['quantity'] * cart[product]['price']
+                }
+                if (total == 0) {
+                  a.innerHTML = "<a id='cartCountA'>您的购物车是空的</a>"
+                } else {
+                  a.innerHTML =  `<a id='cartCountA' href='/cart/'>${total}件商品,¥${money}</a>`
+                }
+
+            }
+          }
+        });
+    }
+    $('.minus-btn').on('click', function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    var $input = $this.closest('div').find('input');
+    var value = parseInt($input.val());
+
+    if (value >= 1) {
+        value = value - 1;
+    } else {
+        value = 0;
+    }
+
+    $input.val(value);
+    let productID = e.currentTarget.name;
+    postCount(productID, value)
+    });
+
+    $('.plus-btn').on('click', function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    var $input = $this.closest('div').find('input');
+    var value = parseInt($input.val());
+
+    if (value <= 100) {
+        value = value + 1;
+    } else {
+        value =100;
+    }
+
+    $input.val(value);
+    let productID = e.currentTarget.name;
+    console.log('value=',value)
+    postCount(productID, value)
+    });
+</script>
+</body>
+</html>
