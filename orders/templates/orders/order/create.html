@@ -39,28 +39,23 @@
         order['1'] = form.elements[1].value
         order['2'] = form.elements[2].value
         order['3'] = form.elements[3].value
-
+        console.log('order',order)
         $.ajax({
             type: 'POST',
-            url: 'https://oapi.dingtalk.com/robot/send?access_token=40af9a194ed5650727c29cbb2234c62b30c11f35369257bd4b6fef7c82d38828',
-            data: {
-              "msgtype": "text",
-              "text": {
-                  "content": "我就是我, 是不一样的烟火"
-               }
-            },
-            dataType: 'application/json',
+            url: '/orders/notify/',
+            data:{'order': JSON.stringify(order)},
+            dataType: 'json',
             success: function (data) {
-                console('dingding',data)
+                console.log('dingding',data)
             },
             done:function(data) {
-                console('ding',data)
+                console.log('ding',data)
             }
           });
 
         let orderJson = JSON.stringify(order);
         setCookieMinute("order", orderJson, 24 * 360)
-        return false;
+        return true;
     }
 
 

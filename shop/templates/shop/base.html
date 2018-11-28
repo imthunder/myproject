@@ -22,7 +22,7 @@
   <li>{% with total_items=cart|length %}
         {% if cart|length > 0 %}
             <a id='cartCountA' href="{% url "cart:cart_detail" %}">
-                {{ total_items }} 件商品,
+                购物车: {{ total_items }}件商品,
                 ¥{{ cart.get_total_price }}
             </a>
         {% else %}

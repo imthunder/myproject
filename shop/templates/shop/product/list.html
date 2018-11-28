@@ -28,10 +28,10 @@
         <a href="#">
           <img class="thumbnail" src="{% if product.image %}{{ product.image.url }}{% else %}{% static "img/no_image.png" %}{% endif %}">
         </a>
-        <span style="font-size: 15px;color: #43484D;font-weight: 600;">{{ product.name }}</span>
+        <span style=" font-size: 15px;color: #43484D;font-weight: 600;">{{ product.name }}</span>
         <br>
-        <div class="quantity">
-          <span style="font-size: 15px;color: #43484D;font-weight: 600;">¥{{ product.price }}</span>
+        <span style="font-size: 15px;color: #43484D;font-weight: 400;">¥{{ product.price }}</span>
+        <div class="quantity" style="height:35px;">
           <button class="plus-btn" type="button" name="{{ product.id }}">
             <img src="{% static "img/plus.svg" %}" alt="" />
           </button>

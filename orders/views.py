@@ -3,6 +3,9 @@ from .models import OrderItem
 from .forms import OrderCreateForm
 from cart.cart import Cart
 # from .tasks import order_created
+from django.http import JsonResponse
+import json
+import urllib.request
 
 def order_create(request):
     cart = Cart(request)
@@ -29,3 +32,39 @@ def order_create(request):
     return render(request,
                   'orders/order/create.html',
                   {'cart': cart, 'form': form})
+
+def order_notify(request):
+    order = request.POST.get('order')  
+    print('order',order)
+    order = json.loads(order)
+    orderText = "手机号: {0}\n微信号: {1}\n地址: {2}\n时间: {3}".format(order['0'],order['1'],order['2'],order['3'])
+    print(orderText)
+    dd(orderText)
+    return  JsonResponse({'success':True, 'data':{
+                'status_code' : 200,
+                'order':order
+            }})
+
+def dd(orderText):
+    url='https://oapi.dingtalk.com/robot/send?access_token=164879c145dd047d0aa38b56949825fdd36d39b71485ad87483735be0d7c439c'
+
+    header = {
+        "Content-Type": "application/json",
+        "Charset": "UTF-8"
+    }
+    data = {
+        "msgtype": "text",
+        "text": {
+            "content": orderText
+        },
+    }
+
+    sendData = json.dumps(data)
+    sendData = sendData.encode("utf-8") 
+
+    request = urllib.request.Request(url=url, data=sendData, headers=header)
+
+
+    opener = urllib.request.urlopen(request)
+    print(opener.read())
+
